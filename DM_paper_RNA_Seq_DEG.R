@@ -4,8 +4,8 @@ library(umap)
 library(Rtsne)
 
 #Load raw STAR count data
-TDM_STAR_COUNT <- as.data.frame(read_csv("~/TDM_STAR_COUNT.csv"))
-TDMa_STAR_COUNT <- as.data.frame(read_csv("~/TDMa_STAR_COUNT.csv"))
+TD_STAR_COUNT <- as.data.frame(read_csv("~/TDM_STAR_COUNT.csv"))
+TRED_STAR_COUNT <- as.data.frame(read_csv("~/TDMa_STAR_COUNT.csv"))
 VIVO_STAR_COUNT <- as.data.frame(read_csv("~/VIVO_STAR_COUNT.csv"))
 
 #Load Ensmbl ID to gene name table
@@ -17,12 +17,12 @@ ENMUSG_to_GeneName <- as.data.frame(read_delim("~/gene_id_name.txt",
 ENMUSG_to_GeneName <- ENMUSG_to_GeneName[-(which(duplicated(ENMUSG_to_GeneName$`Gene stable ID`))),]
 
 #Rearrange row.names
-row.names(TDM_STAR_COUNT) <- TDM_STAR_COUNT$GENE_ID
-row.names(TDMa_STAR_COUNT) <- TDMa_STAR_COUNT$GENE_ID
+row.names(TD_STAR_COUNT) <- TD_STAR_COUNT$GENE_ID
+row.names(TRED_STAR_COUNT) <- TRED_STAR_COUNT$GENE_ID
 row.names(VIVO_STAR_COUNT) <- VIVO_STAR_COUNT$GENE_ID
 row.names(ENMUSG_to_GeneName) <- ENMUSG_to_GeneName$`Gene stable ID`
-TDM_STAR_COUNT <- TDM_STAR_COUNT[,-1]
-TDMa_STAR_COUNT <- TDMa_STAR_COUNT[,-1]
+TD_STAR_COUNT <- TD_STAR_COUNT[,-1]
+TRED_STAR_COUNT <- TRED_STAR_COUNT[,-1]
 VIVO_STAR_COUNT <- VIVO_STAR_COUNT[,-1]
 temp <- as.data.frame(ENMUSG_to_GeneName[,-1])
 row.names(temp) <- row.names(ENMUSG_to_GeneName)
@@ -30,49 +30,49 @@ ENMUSG_to_GeneName <- temp
 colnames(ENMUSG_to_GeneName) <- c("Gene_name","NCBI_ID")
 
 #Sort Raw expression table to remove genes with mean count of < 5
-TDM_STAR_COUNT <- TDM_STAR_COUNT[which(rowSums(TDM_STAR_COUNT)>=20),]
-TDMa_STAR_COUNT <- TDMa_STAR_COUNT[which(rowSums(TDMa_STAR_COUNT)>=20),]
+TD_STAR_COUNT <- TD_STAR_COUNT[which(rowSums(TD_STAR_COUNT)>=20),]
+TRED_STAR_COUNT <- TRED_STAR_COUNT[which(rowSums(TRED_STAR_COUNT)>=20),]
 VIVO_STAR_COUNT <- VIVO_STAR_COUNT[which(rowSums(VIVO_STAR_COUNT)>=40),]
 
 #Check whether gene expression table is usable
-TDM_STAR_COUNT[which(row.names(TDM_STAR_COUNT)=="ENSMUSG00000074151"),]
-TDMa_STAR_COUNT[which(row.names(TDMa_STAR_COUNT)=="ENSMUSG00000074151"),]
+TD_STAR_COUNT[which(row.names(TD_STAR_COUNT)=="ENSMUSG00000074151"),]
+TRED_STAR_COUNT[which(row.names(TRED_STAR_COUNT)=="ENSMUSG00000074151"),]
 VIVO_STAR_COUNT[which(row.names(VIVO_STAR_COUNT)=="ENSMUSG00000074151"),]
 
 #Creat a dummy data.frame which for grouping, which is required by DESeq2
-TDM.group <- as.data.frame(c("E","E","N","N"))
-TDMa.group <- as.data.frame(c("E","E","N","N"))
+TD.group <- as.data.frame(c("E","E","N","N"))
+TRED.group <- as.data.frame(c("E","E","N","N"))
 VIVO.group <- as.data.frame(c("E","E","E","E","N","N","N","N"))
 
-colnames(TDM.group)[1] <- "group"
-colnames(TDMa.group)[1] <- "group"
+colnames(TD.group)[1] <- "group"
+colnames(TRED.group)[1] <- "group"
 colnames(VIVO.group)[1] <- "group"
 
-row.names(TDM.group) <- colnames(TDM_STAR_COUNT)
-row.names(TDMa.group) <- colnames(TDMa_STAR_COUNT)
+row.names(TD.group) <- colnames(TD_STAR_COUNT)
+row.names(TRED.group) <- colnames(TRED_STAR_COUNT)
 row.names(VIVO.group) <- colnames(VIVO_STAR_COUNT)
 
 #Run Deseq2 and get normalized counts
-#TDM cells
-TDM.dds <- DESeqDataSetFromMatrix(countData = TDM_STAR_COUNT,
-                                  colData = TDM.group,
+#TD cells
+TD.dds <- DESeqDataSetFromMatrix(countData = TD_STAR_COUNT,
+                                  colData = TD.group,
                                   design = ~ group)
-TDM.dds <- DESeq(TDM.dds)
-resultsNames(TDM.dds)
-TDM.res <- results(TDM.dds, name="group_N_vs_E")
-TDM.res <- as.data.frame(TDM.res)
-TDM.count <- counts(TDM.dds, normalized=TRUE)
-TDM.res[which(row.names(TDM.res)=="ENSMUSG00000074151"),]
-#TDMa cells
-TDMa.dds <- DESeqDataSetFromMatrix(countData = TDMa_STAR_COUNT,
-                                   colData = TDMa.group,
+TD.dds <- DESeq(TD.dds)
+resultsNames(TD.dds)
+TD.res <- results(TD.dds, name="group_N_vs_E")
+TD.res <- as.data.frame(TD.res)
+TD.count <- counts(TD.dds, normalized=TRUE)
+TD.res[which(row.names(TD.res)=="ENSMUSG00000074151"),]
+#TRED cells
+TRED.dds <- DESeqDataSetFromMatrix(countData = TRED_STAR_COUNT,
+                                   colData = TRED.group,
                                    design = ~ group)
-TDMa.dds <- DESeq(TDMa.dds)
-resultsNames(TDMa.dds)
-TDMa.res <- results(TDMa.dds, name="group_N_vs_E")
-TDMa.res <- as.data.frame(TDMa.res)
-TDMa.count <- counts(TDMa.dds, normalized=TRUE)
-#TDMa in vivo tumors
+TRED.dds <- DESeq(TRED.dds)
+resultsNames(TRED.dds)
+TRED.res <- results(TRED.dds, name="group_N_vs_E")
+TRED.res <- as.data.frame(TRED.res)
+TRED.count <- counts(TRED.dds, normalized=TRUE)
+#TRED in vivo tumors
 VIVO.dds <- DESeqDataSetFromMatrix(countData = VIVO_STAR_COUNT,
                                    colData = VIVO.group,
                                    design = ~ group)
@@ -82,32 +82,32 @@ VIVO.res <- results(VIVO.dds, name="group_N_vs_E")
 VIVO.res <- as.data.frame(VIVO.res)
 VIVO.count <- counts(VIVO.dds, normalized=TRUE)
 
-TDM.name <- data.frame(ENMUSG_to_GeneName[which(row.names(ENMUSG_to_GeneName) %in% row.names(TDM.res)),], 
-                       row.names = row.names(ENMUSG_to_GeneName)[which(row.names(ENMUSG_to_GeneName) %in% row.names(TDM.res))])
+TD.name <- data.frame(ENMUSG_to_GeneName[which(row.names(ENMUSG_to_GeneName) %in% row.names(TD.res)),], 
+                       row.names = row.names(ENMUSG_to_GeneName)[which(row.names(ENMUSG_to_GeneName) %in% row.names(TD.res))])
 
-colnames(TDM.name) <- "Gene_name"
+colnames(TD.name) <- "Gene_name"
 
 #Merge DEG results with table of gene names for convenience
-TDM.res <- merge(TDM.res,ENMUSG_to_GeneName,by="row.names",all=F)
-TDMa.res <- merge(TDMa.res,ENMUSG_to_GeneName,by="row.names",all=F)
+TD.res <- merge(TD.res,ENMUSG_to_GeneName,by="row.names",all=F)
+TRED.res <- merge(TRED.res,ENMUSG_to_GeneName,by="row.names",all=F)
 VIVO.res <- merge(VIVO.res,ENMUSG_to_GeneName,by="row.names",all=F)
 
 #Generate DESeq2 normalized count table
-TDM.count <- as.data.frame(log(TDM.count + 1, base = 2))
-TDMa.count <- as.data.frame(log(TDMa.count + 1, base = 2))
+TD.count <- as.data.frame(log(TD.count + 1, base = 2))
+TRED.count <- as.data.frame(log(TRED.count + 1, base = 2))
 VIVO.count <- as.data.frame(log(VIVO.count + 1, base = 2))
 
 #Merge normalized count table  with table of gene names for convenience
-TDM.count <- merge(TDM.count,ENMUSG_to_GeneName,by="row.names",all.x=T)
-TDMa.count <- merge(TDMa.count,ENMUSG_to_GeneName,by="row.names",all.x=T)
+TD.count <- merge(TD.count,ENMUSG_to_GeneName,by="row.names",all.x=T)
+TRED.count <- merge(TRED.count,ENMUSG_to_GeneName,by="row.names",all.x=T)
 VIVO.count <- merge(VIVO.count,ENMUSG_to_GeneName,by="row.names",all.x=T)
 
 #Export tables
-write.csv(TDM.res, file = "~/TDM.res.csv", row.names = FALSE)
-write.csv(TDMa.res, file = "~/TDMa.res.csv", row.names = FALSE)
+write.csv(TD.res, file = "~/TD.res.csv", row.names = FALSE)
+write.csv(TRED.res, file = "~/TRED.res.csv", row.names = FALSE)
 write.csv(VIVO.res, file = "~/VIVO.res.csv", row.names = FALSE)
 
-write.csv(TDM.count, file = "~/TDM.count.csv", row.names = FALSE)
-write.csv(TDMa.count, file = "~/TDMa.count.csv", row.names = FALSE)
+write.csv(TD.count, file = "~/TD.count.csv", row.names = FALSE)
+write.csv(TRED.count, file = "~/TRED.count.csv", row.names = FALSE)
 write.csv(VIVO.count, file = "~/VIVO.count.csv", row.names = FALSE)
 
