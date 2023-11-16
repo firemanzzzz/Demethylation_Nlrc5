@@ -13,7 +13,7 @@ TRED.count$Nlrc5_Mean <- (TRED.count$TRED_sgNlrc5_1 + TRED.count$TRED_sgNlrc5_2)
 TRED.names.up <- c("Nlrc5","H2-D1","Psmb9","Tap1","B2m")
 TRED.names.down <- c("Stat1","Irf1","Mx1")
 
-#generate the plot for TRED cells (figure 2 d)
+#generate the plot for TRED cells (Figure 3D)
 TRED_outliner_plot <- ggplot(TRED.count, aes(Scramble_Mean, Nlrc5_Mean)) +
   geom_point(shape = 21, # Specify shape and color as fixed local parameters    
              colour = "grey",
@@ -64,7 +64,7 @@ TRED_outliner_plot #View plot
 
 #Assign gnee names
 TD.names.up <- c("Nlrc5")
-#generate the plot for TD cells (figure 1 f)
+#generate the plot for TD cells (Figure 2F)
 TD_outliner_plot <- ggplot(TD.count, aes(Scramble_Mean, Nlrc5_Mean)) +
   geom_point(shape = 21, # Specify shape and color as fixed local parameters    
              colour = "grey",
