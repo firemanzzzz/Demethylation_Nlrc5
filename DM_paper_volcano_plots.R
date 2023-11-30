@@ -179,7 +179,7 @@ GO_vol_plot
 ###TRED-I cell line differentially expressed gene analysis volcano plot (Figure S4A)###
 AMT.res.vol <- AMT.res
 #Filter genes with mean count of >200
-AMT.res.vol <- AMT.res.vol[which(AMT.res.vol$baseMean > 200),]
+AMT.res.vol <- AMT.res.vol[which(AMT.res.vol$baseMean > 128),]
 #Mark genes with customized threshold
 AMT.res.vol$gene_type <- case_when(AMT.res.vol$log2FoldChange >= 1 & AMT.res.vol$padj <= 1e-2 ~ "up",
                                    AMT.res.vol$log2FoldChange <= -1 & AMT.res.vol$padj <= 1e-2 ~ "down",
